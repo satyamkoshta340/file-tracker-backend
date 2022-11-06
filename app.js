@@ -38,6 +38,6 @@ app.get('*', (req, res)=>{
     })
 })
 
-app.listen(PORT | 8800, (req, res)=>{
+app.listen(PORT || 8800, (req, res)=>{
     console.log(`Server is running on ${PORT}`);
 })
