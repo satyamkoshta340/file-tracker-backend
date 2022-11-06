@@ -14,7 +14,11 @@ app.use(cors({
     origin: process.env.FRONTEND_URL,
     credentials: true
 }));
-app.use(session({ secret: "wind"}));
+app.use(session({ 
+    secret: process.env.APP_SECRET,
+    resave: false,
+    saveUninitialized: true,
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 

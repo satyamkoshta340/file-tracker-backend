@@ -22,11 +22,11 @@ router.get("/google/success", (req, res)=>{
 })
 router.get("/google/callback", passport.authenticate("google", {
     successRedirect: `${process.env.FRONTEND_URL}/file-tracker-frontend`,
-    failureRedirect: "/api/auth/google"
+    failureRedirect: "/auth/google"
 }))
 
 router.get("/logout", (req, res)=>{
     req.logout();
-    res.redirect("http://localhost:3000");
+    res.redirect(`${process.env.FRONTEND_URL}/file-tracker-frontend`);
 })
 module.exports = router;
