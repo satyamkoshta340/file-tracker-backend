@@ -11,7 +11,7 @@ const PORT = process.env.PORT;
 const app = express();
 app.use(express.json());
 app.use(cors({
-    origin: "http://localhost:3000",
+    origin: process.env.FRONTEND_URL,
     credentials: true
 }));
 app.use(session({ secret: "wind"}));
@@ -38,6 +38,6 @@ app.get('*', (req, res)=>{
     })
 })
 
-app.listen(PORT, (req, res)=>{
+app.listen(PORT | 8800, (req, res)=>{
     console.log(`Server is running on ${PORT}`);
 })
