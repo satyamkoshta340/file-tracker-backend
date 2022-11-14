@@ -25,8 +25,12 @@ router.get("/google/callback", passport.authenticate("google", {
     failureRedirect: "/auth/google"
 }))
 
-router.get("/logout", (req, res)=>{
-    req.logout();
-    res.redirect(`${process.env.FRONTEND_URL}/file-tracker-frontend`);
+router.get("/logout", (req, res, next)=>{
+    req.logout(function(err) {
+        if (err) {
+            return next(err);
+        }
+        res.redirect(`${process.env.FRONTEND_URL}/file-tracker-frontend`);
+    });
 })
 module.exports = router;
