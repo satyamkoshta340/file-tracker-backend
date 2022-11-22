@@ -32,7 +32,10 @@ app.get('/', (req, res) => {
 })
 
 const authRouter = require("./routes/authRouter");
+const fileRouter = require("./routes/fileRouter");
+
 app.use('/auth', authRouter);
+app.use('/api/file', fileRouter);
 app.get('*', (req, res)=>{
     res.status(404).json({
         status: "FAIL",

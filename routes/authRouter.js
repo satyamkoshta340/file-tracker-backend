@@ -1,6 +1,6 @@
 const express = require("express");
 const passport = require("passport");
-// const authController = require("../controllers/authController");
+
 require("../services/passportAuthService");
 
 const router = express.Router();
@@ -28,9 +28,14 @@ router.get("/google/callback", passport.authenticate("google", {
 router.get("/logout", (req, res, next)=>{
     req.logout(function(err) {
         if (err) {
+            console.log(err)
             return next(err);
         }
-        res.redirect(`${process.env.FRONTEND_URL}/file-tracker-frontend`);
+        req.session.destroy();
+        res.status(200).json({
+            status: "success",
+            message:"loggedout!"
+        })
     });
 })
 module.exports = router;
