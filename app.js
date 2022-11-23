@@ -14,11 +14,19 @@ app.use(cors({
     origin: process.env.FRONTEND_URL,
     credentials: true
 }));
-app.use(session({ 
+
+let sess = { 
     secret: process.env.APP_SECRET,
     resave: false,
     saveUninitialized: true,
-}));
+    cookie: { }
+}
+if(process.env.NODE_ENV === "production"){
+    app.set('trust proxy', 1);
+    sess.cookie.secure = true;
+}
+app.use(session(sess));
+
 app.use(passport.initialize());
 app.use(passport.session());
 
