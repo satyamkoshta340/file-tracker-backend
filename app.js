@@ -17,13 +17,13 @@ app.use(cors({
 
 let sess = { 
     secret: process.env.APP_SECRET,
-    resave: false,
-    saveUninitialized: true,
     cookie: { }
 }
 if(process.env.NODE_ENV === "production"){
     app.set('trust proxy', 1);
     sess.cookie.secure = true;
+    console.log("its production")
+    console.log(sess)
 }
 app.use(session(sess));
 
