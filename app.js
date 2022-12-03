@@ -36,6 +36,10 @@ mongoose.connect(process.env.DATABASE, (e)=>{
     console.log("database connected successfully");
 })
 
+app.use((req, res, next)=>{
+    req.requestTime = new Date;
+    next();
+})
 app.get('/', (req, res) => {
     res.send("File Tracker");
 })

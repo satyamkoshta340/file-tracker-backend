@@ -9,4 +9,7 @@ router.route("/")
     .post(fileController.createFile)
     .get(fileController.getAllFiles);
 
+router.route("/history/:fileId")
+    .get(fileController.getFileHistory);
+
 module.exports = router;
