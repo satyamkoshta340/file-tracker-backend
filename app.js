@@ -21,10 +21,9 @@ let sess = {
     saveUninitialized: true,
     cookie: { }
 }
-if(process.env.NODE_ENV === "production"){
+if(app.get('env') === "production"){
     app.set('trust proxy', 1);
     sess.cookie.secure = true;
-    sess.cookie.httpOnly = false;
 }
 app.use(session(sess));
 
