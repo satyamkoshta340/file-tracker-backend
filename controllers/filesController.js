@@ -1,6 +1,7 @@
 const Files = require("../models/fileModel");
 const FileHistory = require("../models/fileHistoryModel");
 const { v4: uuidv4 } = require('uuid');
+const QRCode = require('qrcode');
 
 exports.createFile= async( req, res, next )=>{
     const newFile = req.body;
@@ -66,11 +67,14 @@ exports.getFileHistory = async( req, res, next ) => {
             }
         })
     }
+    const ur = await QRCode.toDataURL(`${file.fileId}`);
+    const qr = ur.substring(22);
     res.status(200).json({
         status: "success",
         data:{
             history,
-            file
+            file,
+            qr
         }
     })
 }
