@@ -4,12 +4,18 @@ const dotenv = require('dotenv');
 const passport = require("passport");
 const mongoose = require("mongoose");
 const session = require("express-session");
+const cookieParser = require("cookie-parser");
 
 dotenv.config();
 const PORT = process.env.PORT;
 
 const app = express();
 app.use(express.json());
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(__dirname));
+app.use(cookieParser());
+
 app.use(cors({
     origin: process.env.FRONTEND_URL,
     credentials: true
