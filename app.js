@@ -4,7 +4,7 @@ const dotenv = require('dotenv');
 const passport = require("passport");
 const mongoose = require("mongoose");
 const session = require("express-session");
-const cookieParser = require("cookie-parser");
+// const cookieParser = require("cookie-parser");
 
 dotenv.config();
 const PORT = process.env.PORT;
@@ -14,7 +14,7 @@ app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(__dirname));
-app.use(cookieParser());
+// app.use(cookieParser());
 
 app.use(cors({
     origin: process.env.FRONTEND_URL,
@@ -24,13 +24,14 @@ app.use(cors({
 let sess = { 
     secret: process.env.APP_SECRET,
     resave: false,
-    saveUninitialized: true,
-    cookie: { }
+    saveUninitialized: false,
+    // cookie: { }
 }
-if(app.get('env') === "production"){
-    app.set('trust proxy', 1);
-    sess.cookie.secure = true;
-}
+// if(app.get('env') === "production"){
+//     // app.set('trust proxy', 1);
+//     sess.cookie.secure = true;
+//     sess.cookie.httpOnly = true;
+// }
 app.use(session(sess));
 
 app.use(passport.initialize());
