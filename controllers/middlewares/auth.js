@@ -1,7 +1,8 @@
 const Users = require("../../models/userModel");
 const { verifyToken } = require("../../services/jwtService");
+const asyncWrapper = require("../../utils/asyncWrapper");
 
-exports.protectedRoute = async(req, res, next) =>{
+exports.protectedRoute = asyncWrapper(async(req, res, next) =>{
     // if( req.user ) return next();
     // else{
     //     res.status(403).json({
@@ -53,4 +54,4 @@ exports.protectedRoute = async(req, res, next) =>{
     req.user = currentUser;
 
     next();
-}
+});
