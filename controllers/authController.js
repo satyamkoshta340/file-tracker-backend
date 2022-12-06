@@ -2,9 +2,11 @@ const Users = require("../models/userModel");
 const Cryptr = require('cryptr');
 const jwt = require("../services/jwtService");
 const validator = require("validator");
+const asyncWrapper = require("../utils/asyncWrapper");
 
 const cryptr = new Cryptr('myTotallySecretKey');
-exports.login = async( req, res, next ) => {
+
+exports.login = asyncWrapper(async( req, res, next ) => {
     const { email, password } = req.body;
     if( !email || !password ){
         return res.status(400).json({
@@ -47,9 +49,9 @@ exports.login = async( req, res, next ) => {
         })
     }
 
-};
+});
 
-exports.register = async( req, res, next ) => {
+exports.register = asyncWrapper( async( req, res, next ) => {
     const { firstName, lastName, email, department, password } = req.body;
     const encryptedPass = cryptr.encrypt(password);
     if( !validator.isEmail(email)){
@@ -78,4 +80,4 @@ exports.register = async( req, res, next ) => {
             token
         }
     })
-};
+});
