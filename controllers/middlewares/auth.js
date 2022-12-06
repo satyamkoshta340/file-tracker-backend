@@ -23,17 +23,21 @@ exports.protectedRoute = async(req, res, next) =>{
     }
 
     /* IF TOKEN IS NOT PROVIDED CORRECTLY */
-    if (!token)
-    return next(
-        new AppError(401, 'You are not logged in! Please log in to get access.')
-    );
+    if (!token){
+        return res.status(401).json({
+            status: "fail",
+            data:{
+                message: 'You are not logged in! Please log in to get access.'
+            }
+        });
+    }
 
     /* VERIFY THE TOKEN */
     const decoded = verifyToken(token);
 
     /* FIND THE CURRENT USER BASED ON TOKEN */
     const currentUser = await Users.findOne({
-        email: decoded.email,
+        email: decoded?.email,
     }).select('-__v');
 
     /* IF NO MATCHING USER IS FOUND */
