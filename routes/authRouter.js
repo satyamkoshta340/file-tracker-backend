@@ -1,10 +1,17 @@
 const express = require("express");
 const passport = require("passport");
-
+const authController = require("../controllers/authController");
 require("../services/passportAuthService");
 
 const router = express.Router();
 
+router.post("/login", authController.login);
+router.post("/signup", authController.register);
+
+
+/*
+* routes for google login  
+*/
 router.get("/google", passport.authenticate("google", { scope: ['email', 'profile']}));
 router.get("/google/success", (req, res)=>{
     if(req.user){
