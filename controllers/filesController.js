@@ -2,7 +2,8 @@ const Files = require("../models/fileModel");
 const FileHistory = require("../models/fileHistoryModel");
 const { v4: uuidv4 } = require('uuid');
 const QRCode = require('qrcode');
-const asyncWrapper = require("../utils/asyncWrapper");
+const asyncWrapper = require("../utils/asyncWrapper");4
+const mongoose = require("mongoose")
 
 
 exports.createFile= asyncWrapper( async( req, res, next )=>{
@@ -150,3 +151,44 @@ exports.setFileHistory = asyncWrapper( async( req, res, next ) => {
         }
     })
 });
+
+exports.getRecentFiles = asyncWrapper(async(req, res, next)=>{
+    const recentFiles = await FileHistory.aggregate([
+        {
+            $lookup:{
+                from: "files",
+                foreignField:"fileId",
+                localField: "fileId",
+                as: "file"
+            } 
+        },
+        {
+            $match:{ "file.owner": mongoose.Types.ObjectId(req.user._id) }
+        },
+        {
+            $unwind: "$file"
+        },
+        {
+            $group: {
+                _id: "$file.fileId",
+                reachedAt: { $max :"$reachedAt"},
+                fileName: { $first: "$file.fileName"},
+                description: { $first: "$file.description"}
+            }
+        },
+        {
+            $sort: {
+                "reachedAt": -1
+            }
+        },
+        {
+            $limit: 5
+        }
+    ])
+    res.status(200).json({
+        status: "success",
+        data:{
+            recentFiles
+        }
+    })
+})
