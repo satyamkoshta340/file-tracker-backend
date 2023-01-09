@@ -13,7 +13,7 @@ const app = express();
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(__dirname));
+// app.use(express.static(__dirname));
 // app.use(cookieParser());
 
 app.use(cors({
@@ -24,7 +24,7 @@ app.use(cors({
 let sess = { 
     secret: process.env.APP_SECRET,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     // cookie: { }
 }
 // if(app.get('env') === "production"){
