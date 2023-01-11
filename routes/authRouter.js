@@ -1,17 +1,17 @@
 const express = require("express");
-const passport = require("passport");
+// const passport = require("passport");
 const authController = require("../controllers/authController");
-require("../services/passportAuthService");
+// require("../services/passportAuthService");
 
 const router = express.Router();
 
 router.post("/login", authController.login);
 router.post("/signup", authController.register);
-
+router.post("/google", authController.authWithGoogle);
 
 /*
 * routes for google login  
-*/
+
 router.get("/google", passport.authenticate("google", { scope: ['email', 'profile']}));
 router.get("/google/success", (req, res)=>{
     if(req.user){
@@ -46,4 +46,6 @@ router.get("/logout", (req, res, next)=>{
         })
     });
 })
+
+*/
 module.exports = router;
