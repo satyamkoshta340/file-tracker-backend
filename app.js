@@ -12,7 +12,7 @@ const PORT = process.env.PORT;
 const app = express();
 app.use(express.json());
 
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.urlencoded({ extended: true }));
 // app.use(express.static(__dirname));
 // app.use(cookieParser());
 
@@ -20,11 +20,17 @@ app.use(cors({
     origin: process.env.FRONTEND_URL,
     credentials: true
 }));
+app.set("trust proxy", 1);
 
 let sess = { 
     secret: process.env.APP_SECRET,
-    resave: false,
+    resave: true,
     saveUninitialized: true,
+    cookie: {
+        sameSite: "none",
+        secure: true,
+        maxAge: 1000 * 60 * 60 * 24 * 7 // One Week
+    }
     // cookie: { }
 }
 // if(app.get('env') === "production"){
