@@ -27,10 +27,11 @@ router.get("/google/success", (req, res)=>{
     });
     }
 })
-router.get("/google/callback", passport.authenticate("google", {
-    successRedirect: `${process.env.FRONTEND_URL}/file-tracker-frontend`,
-    failureRedirect: "/auth/google"
-}))
+router.get("/google/callback", passport.authenticate("google", { failureRedirect: "/auth/google", session: true}),
+    (req, res)=>{
+        res.redirect(`${process.env.FRONTEND_URL}/file-tracker-frontend`);
+    }
+)
 
 router.get("/logout", (req, res, next)=>{
     req.logout(function(err) {
