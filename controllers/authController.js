@@ -174,7 +174,7 @@ exports.authWithGoogleForApp = async (req, res) => {
           { firstName, lastName, gId, picture }
         );
       }
-      const token = await generateToken(user);
+      const token = jwt.signToken(user.email);
       res.status(200).json({
         error: false,
         status: "success",
