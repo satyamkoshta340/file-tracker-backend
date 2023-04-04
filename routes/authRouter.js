@@ -8,6 +8,7 @@ const router = express.Router();
 router.post("/login", authController.login);
 router.post("/signup", authController.register);
 router.post("/google", authController.authWithGoogle);
+router.post("/googleforapp", authController.authWithGoogleForApp);
 
 /*
 * routes for google login  
