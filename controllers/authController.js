@@ -140,6 +140,12 @@ exports.authWithGoogle = async (req, res, next) => {
             message: "User Authenticated sucessfully",
         });
       }
+      else{
+        res.status(400).json({
+          status: "fail",
+          message: "Please provide valid body data",
+      });
+      }
     } catch (err) {
       console.log(err);
       res.status(500).json({ status: "failure", message: "Internal Server Error" });
