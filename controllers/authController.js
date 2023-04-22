@@ -161,7 +161,7 @@ exports.authWithGoogleForApp = async (req, res) => {
       let user = await Users.findOne({ email });
   
       if (!user) {
-        user = await new User({
+        user = await new Users({
           firstName,
           lastName,
           email,
