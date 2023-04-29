@@ -9,6 +9,7 @@ router.post("/login", authController.login);
 router.post("/signup", authController.register);
 router.post("/google", authController.authWithGoogle);
 router.post("/googleforapp", authController.authWithGoogleForApp);
+router.get("/confirm/:token", authController.confirmAccount);
 
 /*
 * routes for google login  

@@ -20,3 +20,17 @@ exports.getAllUsers = asyncWrapper(async (req, res, next) => {
     data: users,
   });
 });
+exports.updateUser = asyncWrapper(async (req, res, next) => {
+  const { firstName, lastName, department } = req.body;
+  //  const user=await User.findOne(req.user._id);
+
+  const updatedUser = await User.findOneAndUpdate(
+    { _id: req.user._id },
+    { firstName, lastName, department },
+    { new: true }
+  );
+  res.status(201).json({
+    status: "success",
+    data: updatedUser,
+  });
+});
