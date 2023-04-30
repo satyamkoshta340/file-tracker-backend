@@ -98,7 +98,7 @@ exports.getFileHistory = asyncWrapper(async (req, res, next) => {
 
 exports.setFileHistory = asyncWrapper(async (req, res, next) => {
   const fileId = req.params.fileId;
-  const { info } = req.body;
+  const { info, type } = req.body;
   let file = null;
   try {
     file = await Files.findOne({ fileId });
@@ -132,7 +132,7 @@ exports.setFileHistory = asyncWrapper(async (req, res, next) => {
       },
     },
   ]);
-  if (lastSpot.recent.userId.toString() === req.user._id.toString()) {
+  if (type === "recieve" && lastSpot.recent.userId.toString() === req.user._id.toString()) {
     return res.status(200).json({
       status: "success",
       data: {
