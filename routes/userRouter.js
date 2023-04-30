@@ -7,7 +7,8 @@ const router = express.Router();
 router.use(authMiddleware.protectedRoute);
 
 router.get("/", userController.getUser);
-router.get('/getAllUsers',userController.getAllUsers)
+router.get("/getAllUsers", userController.getAllUsers);
 router.get("/recent-files", fileController.getRecentFiles);
+router.put("/updateUser", userController.updateUser);
 
-module.exports = router
+module.exports = router;

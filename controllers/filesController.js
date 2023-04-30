@@ -1,6 +1,6 @@
 const Files = require("../models/fileModel");
 const FileHistory = require("../models/fileHistoryModel");
-const User=require('../models/userModel')
+const User = require("../models/userModel");
 const { v4: uuidv4 } = require("uuid");
 const QRCode = require("qrcode");
 const asyncWrapper = require("../utils/asyncWrapper");
@@ -157,23 +157,25 @@ exports.setFileHistory = asyncWrapper(async (req, res, next) => {
 
 //delete fileHistory
 exports.deleteFileHistory = asyncWrapper(async (req, res, next) => {
-  console.log(req.user)
+  console.log(req.user);
   const { fileId } = req.params;
-  const file= await Files.findOne({fileId:fileId});
+  const file = await Files.findOne({ fileId: fileId });
   if (!file) {
     return res.status(400).json({
       status: "fail",
       message: "file not found",
     });
   }
-  if( req.user._id !== file.owner){
-    res.status(401).json({
+
+  console.log(req.user, file);
+  if (req.user._id.toString() != file.owner.toString()) {
+    return res.status(401).json({
       status: "fail",
       message: "only owner can delete the file",
     });
   }
-  await Files.deleteOne({ fileId:fileId });
-  await FileHistory.deleteMany({ fileId:fileId });
+  await Files.deleteOne({ fileId: fileId });
+  await FileHistory.deleteMany({ fileId: fileId });
   res.status(200).json({
     status: "success",
     message: "file history has deleted",
