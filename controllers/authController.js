@@ -50,63 +50,63 @@ exports.login = asyncWrapper(async (req, res, next) => {
         to: email,
         subject: "Please confirm your account",
         html: `<!DOCTYPE html>
-    <html lang="en"> 
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Confirm Account</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link href='https://fonts.googleapis.com/css?family=Orbitron' rel='stylesheet' type='text/css'>
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Montserrat&family=Roboto&display=swap"
-            rel="stylesheet">
-    </head>
-    <body>
-        <center>
-            <div style="width: 350px">
-                <header
-                    style="display: flex; flex-direction: row; align-items:center; border-bottom: solid #A5D7E8; border-width: thin;">
-                    <img src="https://play-lh.googleusercontent.com/asrfS4x89LkxFILsB4rYxFmX7n0K61MM0QEHpQ7GMlzfekHIeNLHxlP5dEbt1SstnFU=w240-h480"
-                        width="60px" height="50px" alt="GKV" />
-                    <p style="font-family: Merriweather; color: #002B5B;margin-left: 20px; font-weight: 600;">GKV<span>
-                            App</span></p>
-                </header>
-                <br />
-                <div style="text-align: center;">
-                    <div>
-                        <img src="https://png.pngtree.com/png-vector/20190726/ourmid/pngtree-package-pending-icon-for-your-project-png-image_1599195.jpg"
-                            width="120px">
-                    </div>
-                    <P style="text-align: left;">Hello ${firstName},</P>
-                    <p style="text-align: left;">Thank you for part of the GKV. Please confirm your email by clicking on the
-                        following link.</p>
-                    <a href=${process.env.SERVER_URL}/auth/confirm/${confirmationCode} target="_blank">
-                        <button
-                            style="background: #5DA7DB; border: none; color: white; height: 40px; width: 280px; border-radius: 5px; font-weight: 800; font-size: medium;cursor: pointer;">
-                            Verify Email-ID</button>
-                    </a>
-                </div>
-                <br />
-                <div>
-                    <div style="display: flex; border-radius: 4px;">
-                        <div style="padding-left: 1%;">
-                            <P style="word-wrap: break-word; font-weight: 600;">Available on Playstore</P>
+        <html lang="en"> 
+        <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Confirm Account</title>
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link href='https://fonts.googleapis.com/css?family=Orbitron' rel='stylesheet' type='text/css'>
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Montserrat&family=Roboto&display=swap"
+                rel="stylesheet">
+        </head>
+        <body>
+            <center>
+                <div style="width: 350px">
+                    <header
+                        style="display: flex; flex-direction: column; align-items:center; border-bottom: solid #A5D7E8; border-width: thin; justify-content: center;">
+                        <img src="https://play-lh.googleusercontent.com/asrfS4x89LkxFILsB4rYxFmX7n0K61MM0QEHpQ7GMlzfekHIeNLHxlP5dEbt1SstnFU=w240-h480"
+                            width="60px" height="50px" alt="GKV" />
+                        <p style="font-family: Merriweather; color: crimson; font-weight: 900;">Let's Track</p>
+                    </header>
+                    <br />
+                    <div style="text-align: center;">
+                        <div>
+                            <img src="https://png.pngtree.com/png-vector/20190726/ourmid/pngtree-package-pending-icon-for-your-project-png-image_1599195.jpg"
+                                width="120px">
                         </div>
-                        <a href='https://play.google.com/store/apps/details?id=com.gkv.gkvapp'
-                            style='cursor:pointer;display:block'><img
-                                src='https://cdn.me-qr.com/qr/55920118.png?v=1681240451' style="overflow: hidden;"
-                                width="160px" alt='Download app from Playstore'></a>
+                        <P style="text-align: left;">Hello ${firstName},</P>
+                        <p style="text-align: left;">Thank you for part of the GKV (Let's Track). Please confirm your email by clicking on the
+                            following link.</p>
+                        <a href=${process.env.SERVER_URL}/auth/confirm/${confirmationCode} target="_blank">
+                            <button
+                                style="background: #1ea040; border: none; color: white; height: 40px; width: 280px; border-radius: 5px; font-weight: 800; font-size: medium;cursor: pointer;">
+                                Verify Email-ID</button>
+                        </a>
                     </div>
+                    <br />
+                    <!-- <div>
+                        <div style="display: flex; border-radius: 4px;">
+                            <div style="padding-left: 1%;">
+                                <P style="word-wrap: break-word; font-weight: 600;">Available on Playstore</P>
+                            </div>
+                            <a href=''
+                                style='cursor:pointer;display:block'><img
+                                    src='' style="overflow: hidden;"
+                                    width="160px" alt='Download app from Playstore'></a>
+                        </div>
+                    </div> -->
+                    <footer>
+                        <p style="font-size:small;">You have received this mail because your e-mail ID is registered with
+                            Let's Track application. This is a system-generated e-mail, please don't reply to this message.</p>
+                    </footer>
                 </div>
-                <footer>
-                    <p style="font-size:small;">You have received this mail because your e-mail ID is registered with
-                        GKV-app. This is a system-generated e-mail, please don't reply to this message.</p>
-                </footer>
-            </div>
-        </center>
-    </body>
-    </html>`,
+            </center>
+        </body>
+        </html>
+        `,
       };
       sendEmail(mailOptions);
 
@@ -194,63 +194,62 @@ exports.register = asyncWrapper(async (req, res, next) => {
       to: email,
       subject: "Please confirm your account",
       html: `<!DOCTYPE html>
-  <html lang="en"> 
-  <head>
-      <meta charset="UTF-8">
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Confirm Account</title>
-      <link rel="preconnect" href="https://fonts.googleapis.com">
-      <link href='https://fonts.googleapis.com/css?family=Orbitron' rel='stylesheet' type='text/css'>
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-      <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Montserrat&family=Roboto&display=swap"
-          rel="stylesheet">
-  </head>
-  <body>
-      <center>
-          <div style="width: 350px">
-              <header
-                  style="display: flex; flex-direction: row; align-items:center; border-bottom: solid #A5D7E8; border-width: thin;">
-                  <img src="https://play-lh.googleusercontent.com/asrfS4x89LkxFILsB4rYxFmX7n0K61MM0QEHpQ7GMlzfekHIeNLHxlP5dEbt1SstnFU=w240-h480"
-                      width="60px" height="50px" alt="GKV" />
-                  <p style="font-family: Merriweather; color: #002B5B;margin-left: 20px; font-weight: 600;">GKV<span>
-                          App</span></p>
-              </header>
-              <br />
-              <div style="text-align: center;">
-                  <div>
-                      <img src="https://png.pngtree.com/png-vector/20190726/ourmid/pngtree-package-pending-icon-for-your-project-png-image_1599195.jpg"
-                          width="120px">
-                  </div>
-                  <P style="text-align: left;">Hello ${firstName},</P>
-                  <p style="text-align: left;">Thank you for part of the GKV. Please confirm your email by clicking on the
-                      following link.</p>
-                  <a href=${process.env.SERVER_URL}/auth/confirm/${confirmationCode} target="_blank">
-                      <button
-                          style="background: #5DA7DB; border: none; color: white; height: 40px; width: 280px; border-radius: 5px; font-weight: 800; font-size: medium;cursor: pointer;">
-                          Verify Email-ID</button>
-                  </a>
-              </div>
-              <br />
-              <div>
-                  <div style="display: flex; border-radius: 4px;">
-                      <div style="padding-left: 1%;">
-                          <P style="word-wrap: break-word; font-weight: 600;">Available on Playstore</P>
+      <html lang="en"> 
+      <head>
+          <meta charset="UTF-8">
+          <meta http-equiv="X-UA-Compatible" content="IE=edge">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Confirm Account</title>
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link href='https://fonts.googleapis.com/css?family=Orbitron' rel='stylesheet' type='text/css'>
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Montserrat&family=Roboto&display=swap"
+              rel="stylesheet">
+      </head>
+      <body>
+          <center>
+              <div style="width: 350px">
+                  <header
+                      style="display: flex; flex-direction: column; align-items:center; border-bottom: solid #A5D7E8; border-width: thin; justify-content: center;">
+                      <img src="https://play-lh.googleusercontent.com/asrfS4x89LkxFILsB4rYxFmX7n0K61MM0QEHpQ7GMlzfekHIeNLHxlP5dEbt1SstnFU=w240-h480"
+                          width="60px" height="50px" alt="GKV" />
+                      <p style="font-family: Merriweather; color: crimson; font-weight: 900;">Let's Track</p>
+                  </header>
+                  <br />
+                  <div style="text-align: center;">
+                      <div>
+                          <img src="https://png.pngtree.com/png-vector/20190726/ourmid/pngtree-package-pending-icon-for-your-project-png-image_1599195.jpg"
+                              width="120px">
                       </div>
-                      <a href='https://play.google.com/store/apps/details?id=com.gkv.gkvapp'
-                          style='cursor:pointer;display:block'><img
-                              src='https://cdn.me-qr.com/qr/55920118.png?v=1681240451' style="overflow: hidden;"
-                              width="160px" alt='Download app from Playstore'></a>
+                      <P style="text-align: left;">Hello ${firstName},</P>
+                      <p style="text-align: left;">Thank you for part of the GKV (Let's Track). Please confirm your email by clicking on the
+                          following link.</p>
+                      <a href=${process.env.SERVER_URL}/auth/confirm/${confirmationCode} target="_blank">
+                          <button
+                              style="background: #1ea040; border: none; color: white; height: 40px; width: 280px; border-radius: 5px; font-weight: 800; font-size: medium;cursor: pointer;">
+                              Verify Email-ID</button>
+                      </a>
                   </div>
+                  <br />
+                  <!-- <div>
+                      <div style="display: flex; border-radius: 4px;">
+                          <div style="padding-left: 1%;">
+                              <P style="word-wrap: break-word; font-weight: 600;">Available on Playstore</P>
+                          </div>
+                          <a href=''
+                              style='cursor:pointer;display:block'><img
+                                  src='' style="overflow: hidden;"
+                                  width="160px" alt='Download app from Playstore'></a>
+                      </div>
+                  </div> -->
+                  <footer>
+                      <p style="font-size:small;">You have received this mail because your e-mail ID is registered with
+                          Let's Track application. This is a system-generated e-mail, please don't reply to this message.</p>
+                  </footer>
               </div>
-              <footer>
-                  <p style="font-size:small;">You have received this mail because your e-mail ID is registered with
-                      GKV-app. This is a system-generated e-mail, please don't reply to this message.</p>
-              </footer>
-          </div>
-      </center>
-  </body>
-  </html>`,
+          </center>
+      </body>
+      </html>`,
     };
     sendEmail(mailOptions);
 
@@ -305,17 +304,19 @@ exports.authWithGoogle = async (req, res, next) => {
         });
       }
       const profile = verificationResponse?.payload;
+      console.log("Shubahm", profile);
 
-      const gID = profile.id;
+      const gID = profile.sub;
       const firstName = profile.given_name;
       const lastName = profile.family_name;
       const verified = profile.verified;
       const email = profile.email;
       const picture = profile.picture;
-
+      const status = "active";
       let user;
       try {
         const existingUser = await Users.findOne({ gID: profile.sub });
+
         if (!existingUser) {
           const userData = {
             gID,
@@ -324,14 +325,14 @@ exports.authWithGoogle = async (req, res, next) => {
             verified,
             email,
             picture,
-            status: "active",
+            status,
           };
           const newUser = await Users.create(userData);
           user = newUser;
         } else if (!existingUser.gID) {
           await Users.updateOne(
             { email },
-            { gID, firstName, lastName, picture, status: "active" }
+            { gID, firstName, lastName, picture, status }
           );
         } else {
           console.log("existingUser");
@@ -377,20 +378,20 @@ exports.authWithGoogleForApp = async (req, res) => {
     //     .status(400)
     //     .json({ error: true, message: "Please use GKV mail" });
     let user = await Users.findOne({ email });
-
+    let gID = gId;
     if (!user) {
       user = await new Users({
         firstName,
         lastName,
         email,
-        gId,
+        gID,
         picture,
         status: "active",
       }).save();
-    } else if (!user.gId) {
+    } else if (!user.gID) {
       await Users.updateOne(
         { email },
-        { firstName, lastName, gId, picture, status: "active" }
+        { firstName, lastName, gID, picture, status: "active" }
       );
     }
     const token = jwt.signToken(user.email);
