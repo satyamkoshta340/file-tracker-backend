@@ -14,7 +14,7 @@ exports.getUser = asyncWrapper(async (req, res, next) => {
 
 //getAllUser
 exports.getAllUsers = asyncWrapper(async (req, res, next) => {
-  const users = await User.find();
+  const users = await User.find({ email: { $ne: req.user.email }});
   res.status(200).json({
     status: "success",
     data: users,
