@@ -21,7 +21,7 @@ exports.createFile = asyncWrapper(async (req, res, next) => {
   const firstSpot = {
     fileId: savedFile.fileId,
     userId: req.user._id,
-    info: "",
+    info: `File created by ${req.user.firstName} ${req.user.lastName}`,
     reachedAt: req.requestTime,
   };
   // console.log(firstSpot);
@@ -110,10 +110,18 @@ exports.setFileHistory = asyncWrapper(async (req, res, next) => {
       },
     });
   }
+  if( file === null ){
+    return res.status(400).json({
+      status: "fail",
+      data: {
+        message: "invalid fileId, no file belong to this fileId",
+      },
+    });
+  }
   const [lastSpot] = await FileHistory.aggregate([
     {
       $group: {
-        _id: null,
+        _id: file?._id,
         recent: {
           $max: {
             date: "$reachedAt",
@@ -124,7 +132,7 @@ exports.setFileHistory = asyncWrapper(async (req, res, next) => {
       },
     },
   ]);
-  if (lastSpot.recent.userId === req.user._id) {
+  if (lastSpot.recent.userId.toString() === req.user._id.toString()) {
     return res.status(200).json({
       status: "success",
       data: {
@@ -167,7 +175,7 @@ exports.deleteFileHistory = asyncWrapper(async (req, res, next) => {
     });
   }
 
-  console.log(req.user, file);
+  // console.log(req.user, file);
   if (req.user._id.toString() != file.owner.toString()) {
     return res.status(401).json({
       status: "fail",
@@ -182,7 +190,7 @@ exports.deleteFileHistory = asyncWrapper(async (req, res, next) => {
   });
 });
 
-exports.getRecentFiles = asyncWrapper(async (req, res, next) => {
+exports.getTopFiveRecentFiles = asyncWrapper(async (req, res, next) => {
   const recentFiles = await FileHistory.aggregate([
     {
       $lookup: {
@@ -193,7 +201,7 @@ exports.getRecentFiles = asyncWrapper(async (req, res, next) => {
       },
     },
     {
-      $match: { "file.owner": mongoose.Types.ObjectId(req.user._id) },
+      $match: { $or: [ {"file.owner": mongoose.Types.ObjectId(req.user._id) }, {"userId": mongoose.Types.ObjectId(req.user._id)} ]},
     },
     {
       $unwind: "$file",
@@ -222,3 +230,42 @@ exports.getRecentFiles = asyncWrapper(async (req, res, next) => {
     },
   });
 });
+
+exports.getAllRecentFiles = asyncWrapper(async (req, res, next) => {
+  const recentFiles = await FileHistory.aggregate([
+    {
+      $lookup: {
+        from: "files",
+        foreignField: "fileId",
+        localField: "fileId",
+        as: "file",
+      },
+    },
+    {
+      $match: { $or: [ {"file.owner": mongoose.Types.ObjectId(req.user._id) }, {"userId": mongoose.Types.ObjectId(req.user._id)} ]},
+    },
+    {
+      $unwind: "$file",
+    },
+    {
+      $group: {
+        _id: "$file.fileId",
+        reachedAt: { $max: "$reachedAt" },
+        fileName: { $first: "$file.fileName" },
+        description: { $first: "$file.description" },
+      },
+    },
+    {
+      $sort: {
+        reachedAt: -1,
+      },
+    }
+  ]);
+  res.status(200).json({
+    status: "success",
+    data: {
+      recentFiles,
+    },
+  });
+});
+

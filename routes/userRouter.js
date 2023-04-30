@@ -8,7 +8,8 @@ router.use(authMiddleware.protectedRoute);
 
 router.get("/", userController.getUser);
 router.get("/getAllUsers", userController.getAllUsers);
-router.get("/recent-files", fileController.getRecentFiles);
+router.get("/recent-files", fileController.getTopFiveRecentFiles);
+router.get("/getAllRecentFiles", fileController.getAllRecentFiles);
 router.put("/updateUser", userController.updateUser);
 
 module.exports = router;
