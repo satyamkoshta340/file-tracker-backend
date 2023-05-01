@@ -7,6 +7,7 @@ const { OAuth2Client } = require("google-auth-library");
 const cryptr = new Cryptr("myTotallySecretKey");
 const { sendEmail } = require("../utils/sendEmail");
 const crypto = require("crypto");
+const axios = require("axios");
 
 exports.login = asyncWrapper(async (req, res, next) => {
   try {
@@ -307,7 +308,7 @@ exports.authWithGoogle = async (req, res, next) => {
       profile = verificationResponse?.payload;
     }
     else {
-      const response = await fetch(
+      const response = await axios(
         "https://www.googleapis.com/userinfo/v2/me",
         {
           headers: { Authorization: `Bearer ${req.body.googleToken}` },
