@@ -295,6 +295,7 @@ const verifyGoogleToken = async (token) => {
 };
 exports.authWithGoogle = async (req, res, next) => {
   try {
+    let profile = null;
     if (req.body.credential) {
       const verificationResponse = await verifyGoogleToken(req.body.credential);
       if (verificationResponse.error) {
@@ -303,60 +304,67 @@ exports.authWithGoogle = async (req, res, next) => {
           message: verificationResponse.error,
         });
       }
-      const profile = verificationResponse?.payload;
-      console.log("Shubahm", profile);
-
-      const gID = profile.sub;
-      const firstName = profile.given_name;
-      const lastName = profile.family_name;
-      const verified = profile.verified;
-      const email = profile.email;
-      const picture = profile.picture;
-      const status = "active";
-      let user;
-      try {
-        const existingUser = await Users.findOne({ gID: profile.sub });
-
-        if (!existingUser) {
-          const userData = {
-            gID,
-            firstName,
-            lastName,
-            verified,
-            email,
-            picture,
-            status,
-          };
-          const newUser = await Users.create(userData);
-          user = newUser;
-        } else if (!existingUser.gID) {
-          await Users.updateOne(
-            { email },
-            { gID, firstName, lastName, picture, status }
-          );
-        } else {
-          console.log("existingUser");
-          user = existingUser;
-        }
-      } catch (err) {
-        console.log("====================================");
-        console.error(err);
-        console.log("====================================");
-      }
-
-      const token = jwt.signToken(user.email);
-      res.status(200).json({
-        status: "success",
-        token,
-        user,
-        message: "User Authenticated sucessfully",
-      });
-    } else {
-      res.status(400).json({
-        status: "fail",
-        message: "Please provide valid body data",
-      });
+      profile = verificationResponse?.payload;
     }
+    else {
+      const response = await fetch(
+        "https://www.googleapis.com/userinfo/v2/me",
+        {
+          headers: { Authorization: `Bearer ${req.body.googleToken}` },
+        }
+      );
+      if (!response.ok)
+        return res.status(400).json({
+          error: true,
+          message: "Invalid user detected. Please try again",
+        });
+      profile = await response.json();
+    }
+    const gID = profile.sub || profile.id;
+    const firstName = profile.given_name;
+    const lastName = profile.family_name;
+    const verified = profile.verified;
+    const email = profile.email;
+    const picture = profile.picture;
+    const status = "active";
+    let user;
+    try {
+      const existingUser = await Users.findOne({ gID: gID });
+
+      if (!existingUser) {
+        const userData = {
+          gID,
+          firstName,
+          lastName,
+          verified,
+          email,
+          picture,
+          status,
+        };
+        const newUser = await Users.create(userData);
+        user = newUser;
+      } else if (!existingUser.gID) {
+        await Users.updateOne(
+          { email },
+          { gID, firstName, lastName, picture, status }
+        );
+      } else {
+        console.log("existingUser");
+        user = existingUser;
+      }
+    } catch (err) {
+      console.log("====================================");
+      console.error(err);
+      console.log("====================================");
+    }
+
+    const token = jwt.signToken(user.email);
+    res.status(200).json({
+      status: "success",
+      token,
+      user,
+      message: "User Authenticated sucessfully",
+    });
   } catch (err) {
     console.log(err);
     res
