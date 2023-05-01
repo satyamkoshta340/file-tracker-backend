@@ -319,6 +319,7 @@ exports.authWithGoogle = async (req, res, next) => {
           message: "Invalid user detected. Please try again",
         });
       profile = await response.json();
+      console.log(response)
     }
     const gID = profile.sub || profile.id;
     const firstName = profile.given_name;
