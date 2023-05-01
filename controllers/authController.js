@@ -308,9 +308,8 @@ exports.authWithGoogle = async (req, res, next) => {
       profile = verificationResponse?.payload;
     }
     else {
-      const response = await axios({
-          method: 'GET',
-          url: "https://www.googleapis.com/userinfo/v2/me",
+      const response = await fetch("https://www.googleapis.com/userinfo/v2/me",
+        {
           headers: { Authorization: `Bearer ${req.body.googleToken}` },
         }
       );
