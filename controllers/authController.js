@@ -308,19 +308,19 @@ exports.authWithGoogle = async (req, res, next) => {
       profile = verificationResponse?.payload;
     }
     else {
-      const response = await axios(
-        "https://www.googleapis.com/userinfo/v2/me",
-        {
+      const response = await axios({
+          method: 'GET',
+          url: "https://www.googleapis.com/userinfo/v2/me",
           headers: { Authorization: `Bearer ${req.body.googleToken}` },
         }
       );
+      console.log(response)
       if (!response.ok)
         return res.status(400).json({
           error: true,
           message: "Invalid user detected. Please try again",
         });
       profile = await response.json();
-      console.log(response)
     }
     const gID = profile.sub || profile.id;
     const firstName = profile.given_name;
