@@ -4,6 +4,7 @@ const User = require("../models/userModel");
 const { v4: uuidv4 } = require("uuid");
 const QRCode = require("qrcode");
 const asyncWrapper = require("../utils/asyncWrapper");
+const { sendSingleNotification } = require("../utils/sendNotification");
 
 const mongoose = require("mongoose");
 
@@ -36,6 +37,7 @@ exports.createFile = asyncWrapper(async (req, res, next) => {
 });
 
 exports.getAllFiles = asyncWrapper(async (req, res, next) => {
+  sendSingleNotification("Files Loaded", "Here are your existing files", req.user?.expoPushToken);
   const userFiles = await Files.find({ owner: req.user._id });
   res.status(200).json({
     status: "success",

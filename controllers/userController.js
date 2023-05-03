@@ -21,26 +21,26 @@ exports.getAllUsers = asyncWrapper(async (req, res, next) => {
   });
 });
 exports.updateUser = asyncWrapper(async (req, res, next) => {
-  let { firstName, lastName, department } = req.body;
+  let { firstName, lastName, department, expoPushToken } = req.body;
   //  const user=await User.findOne(req.user._id);
-  firstName = firstName.trim();
-  lastName = lastName.trim();
-  if (firstName.length < 3) {
-    return res.status(400).json({
-      status: "fail",
-      data: {
+  if (firstName){
+    firstName = firstName.trim();
+    if(firstName.length < 3) {
+      return res.status(400).json({
+        status: "fail",
         message: "Please provide atleast 3 letters for firstname.",
-      },
-    });
+      });
+    }
   }
 
   const updatedUser = await User.findOneAndUpdate(
     { _id: req.user._id },
-    { firstName, lastName, department },
+    { firstName, lastName, department, expoPushToken },
     { new: true }
   );
   res.status(201).json({
     status: "success",
     data: updatedUser,
+    message: "user updated successfully!"
   });
 });

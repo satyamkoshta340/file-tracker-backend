@@ -6,10 +6,11 @@ const fileController = require("../controllers/filesController");
 const router = express.Router();
 router.use(authMiddleware.protectedRoute);
 
-router.get("/", userController.getUser);
+router.route("/")
+    .get(userController.getUser)
+    .put(userController.updateUser);
 router.get("/getAllUsers", userController.getAllUsers);
 router.get("/recent-files", fileController.getTopFiveRecentFiles);
 router.get("/getAllRecentFiles", fileController.getAllRecentFiles);
-router.put("/updateUser", userController.updateUser);
 
 module.exports = router;

@@ -34,6 +34,10 @@ const userSchema = mongoose.Schema({
     type: String,
     unique: true,
   },
+  expoPushToken: {
+    type: String,
+    unique: true,
+  }
 });
 
 const users = mongoose.model("users", userSchema);
