@@ -37,7 +37,7 @@ exports.createFile = asyncWrapper(async (req, res, next) => {
 });
 
 exports.getAllFiles = asyncWrapper(async (req, res, next) => {
-  sendSingleNotification("Files Loaded", "Here are your existing files", req.user?.expoPushToken);
+  // sendSingleNotification("Files Loaded", "Here are your existing files", req.user?.expoPushToken);
   const userFiles = await Files.find({ owner: req.user._id });
   res.status(200).json({
     status: "success",
@@ -86,7 +86,7 @@ exports.getFileHistory = asyncWrapper(async (req, res, next) => {
       },
     });
   }
-  const ur = await QRCode.toDataURL(`${file.fileId}`);
+  const ur = await QRCode.toDataURL(`${process.env.FRONTEND_URL + "/file-tracker-frontend/track/" + file.fileId}`);
   const qr = ur.substring(22);
   res.status(200).json({
     status: "success",
@@ -153,8 +153,12 @@ exports.setFileHistory = asyncWrapper(async (req, res, next) => {
   const history = await FileHistory.find({ fileId: fileId })
     .populate("userId")
     .sort("reachedAt");
-  const ur = await QRCode.toDataURL(`${file.fileId}`);
+  const ur = await QRCode.toDataURL(`${process.env.FRONTEND_URL + "/file-tracker-frontend/track/" + file.fileId}`);
   const qr = ur.substring(22);
+  const fileOwner = await User.findById(file.owner);
+  if( fileOwner?.expoPushToken ){
+    sendSingleNotification("File Spot Update", `File ${file.fileName} reached at a new spot.`, fileOwner.expoPushToken)
+  }
   res.status(200).json({
     status: "success",
     data: {

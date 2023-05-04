@@ -111,7 +111,7 @@ exports.login = asyncWrapper(async (req, res, next) => {
       };
       sendEmail(mailOptions);
 
-      return res.status(401).json({
+      return res.status(203).json({
         status: "success",
         data: {
           message:

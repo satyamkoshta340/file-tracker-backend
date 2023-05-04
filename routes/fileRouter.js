@@ -3,6 +3,11 @@ const authMiddleware = require("../controllers/middlewares/auth");
 const fileController = require("../controllers/filesController");
 
 const router = express.Router();
+
+router
+  .route("/history/:fileId")
+  .get(fileController.getFileHistory)
+
 router.use(authMiddleware.protectedRoute);
 
 router
@@ -14,7 +19,6 @@ router.route("/:fileId").get(fileController.getFile);
 
 router
   .route("/history/:fileId")
-  .get(fileController.getFileHistory)
   .post(fileController.setFileHistory)
   .delete(fileController.deleteFileHistory);
 
