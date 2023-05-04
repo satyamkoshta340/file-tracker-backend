@@ -35,8 +35,7 @@ const userSchema = mongoose.Schema({
     unique: true,
   },
   expoPushToken: {
-    type: String,
-    unique: true,
+    type: String
   }
 });
 

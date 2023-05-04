@@ -321,6 +321,7 @@ exports.authWithGoogle = async (req, res, next) => {
         });
       profile = await response.json();
     }
+    console.log(profile);
     const gID = profile.sub || profile.id;
     const firstName = profile.given_name;
     const lastName = profile.family_name;
@@ -330,9 +331,9 @@ exports.authWithGoogle = async (req, res, next) => {
     const status = "active";
     let user;
     try {
-      const existingUser = await Users.findOne({ gID: gID });
-
-      if (!existingUser) {
+      user = await Users.findOne({ email: email });
+      console.log(user);
+      if (!user) {
         const userData = {
           gID,
           firstName,
@@ -342,8 +343,7 @@ exports.authWithGoogle = async (req, res, next) => {
           picture,
           status,
         };
-        const newUser = await Users.create(userData);
-        user = newUser;
+        user = await Users.create(userData);
       } else if (!existingUser.gID) {
         await Users.updateOne(
           { email },
@@ -351,7 +351,6 @@ exports.authWithGoogle = async (req, res, next) => {
         );
       } else {
         console.log("existingUser");
-        user = existingUser;
       }
     } catch (err) {
       console.log("====================================");
