@@ -344,7 +344,7 @@ exports.authWithGoogle = async (req, res, next) => {
           status,
         };
         user = await Users.create(userData);
-      } else if (!existingUser.gID) {
+      } else if (!user.gID) {
         await Users.updateOne(
           { email },
           { gID, firstName, lastName, picture, status }
