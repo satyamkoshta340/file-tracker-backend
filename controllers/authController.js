@@ -7,7 +7,9 @@ const { OAuth2Client } = require("google-auth-library");
 const cryptr = new Cryptr("myTotallySecretKey");
 const { sendEmail } = require("../utils/sendEmail");
 const crypto = require("crypto");
-const axios = require("axios");
+// const axios = require("axios");
+const path = require("path");
+// const bcrypt = require("bcrypt");
 
 exports.login = asyncWrapper(async (req, res, next) => {
   try {
@@ -100,7 +102,7 @@ exports.login = asyncWrapper(async (req, res, next) => {
                         </div>
                     </div> -->
                     <footer>
-                        <p style="font-size:small;">You have received this mail because your e-mail ID is registered with
+                        <p style="font-size:x-small;">You have received this mail because your e-mail ID is registered with
                             Let's Track application. This is a system-generated e-mail, please don't reply to this message.</p>
                     </footer>
                 </div>
@@ -244,7 +246,7 @@ exports.register = asyncWrapper(async (req, res, next) => {
                       </div>
                   </div> -->
                   <footer>
-                      <p style="font-size:small;">You have received this mail because your e-mail ID is registered with
+                      <p style="font-size:x-small;">You have received this mail because your e-mail ID is registered with
                           Let's Track application. This is a system-generated e-mail, please don't reply to this message.</p>
                   </footer>
               </div>
@@ -306,14 +308,14 @@ exports.authWithGoogle = async (req, res, next) => {
         });
       }
       profile = verificationResponse?.payload;
-    }
-    else {
-      const response = await fetch("https://www.googleapis.com/userinfo/v2/me",
+    } else {
+      const response = await fetch(
+        "https://www.googleapis.com/userinfo/v2/me",
         {
           headers: { Authorization: `Bearer ${req.body.googleToken}` },
         }
       );
-      console.log(response)
+      console.log(response);
       if (!response.ok)
         return res.status(400).json({
           error: true,
@@ -466,6 +468,245 @@ exports.confirmAccount = async (req, res) => {
                     <h2>Successful!</h2>
                     <p style="color: green;">Your Account has been Verified!</p>
                     <p>Now, You are able to Login.</p>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>`);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: true, message: "Internal Server Error" });
+  }
+};
+
+// @route POST api/auth/recover
+// @desc Recover Password - Generates token and Sends password reset email
+// @access Public
+exports.recover = async (req, res) => {
+  if (!req.body.email)
+    return res.status(400).json({ error: true, message: "Email is missing" });
+  const email = req.body.email.replace(/\s/g, "").toLowerCase();
+  try {
+    const resetPasswordToken = crypto.randomBytes(20).toString("hex");
+    console.log(resetPasswordToken);
+    const user = await Users.findOneAndUpdate(
+      { email },
+      {
+        resetPasswordToken,
+        resetPasswordExpires: Date.now() + 3600000,
+      }
+    );
+    if (!user)
+      return res
+        .status(401)
+        .json({ error: true, message: "No User found with given email" });
+    let link = `${process.env.SERVER_URL}/auth/reset/${resetPasswordToken}`;
+    const mailOptions = {
+      from: `"no-reply" ${process.env.SMTP_USER_NAME}`,
+      to: user.email,
+      subject: "Password change request",
+      html: `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta http-equiv="X-UA-Compatible" content="IE=edge">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Password Change</title>
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link href='https://fonts.googleapis.com/css?family=Orbitron' rel='stylesheet' type='text/css'>
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Montserrat&family=Roboto&display=swap"
+              rel="stylesheet">
+      </head>
+      <body>
+          <center>
+              <div style="width: 350px;">
+                  <header
+                      style="display: flex; flex-direction: row; align-items: center; border-bottom: solid #A5D7E8; border-width: thin;">
+                      <img src="https://play-lh.googleusercontent.com/asrfS4x89LkxFILsB4rYxFmX7n0K61MM0QEHpQ7GMlzfekHIeNLHxlP5dEbt1SstnFU=w240-h480"
+                          width="60px" height="50px" alt="GKV" />
+                      <p style="font-family: Merriweather; color: #002B5B;margin-left: 20px; font-weight: 600; color:crimson;">Let's Track</p>
+                  </header>
+                  <br />
+                  <div>
+                      <p style="font-family: Helvetica Neue,Helvetica,Lucida Grande,tahoma,verdana,arial,sans-serif; text-align: start; color: grey; line-height: 2;">
+                          Hi ${user.firstName},<br /> <br />
+                          Sorry to hear you're having trouble logging into Let's Track. We got a message that you forgot your
+                          password. If this was you, you can reset your password now.</p>
+                      <a href=${link} target="_blank">
+                          <button
+                              style="background: #5DA7DB; border: none; color: white;cursor: pointer ;height: 50px; width: 280px; border-radius: 5px;margin-left: 20px; font-weight: 800; font-size: medium;">
+                              Reset your password
+                          </button>
+                      </a>
+                  </div>
+                  <br />
+                  <footer>
+                      <p style="font-size:x-small;">You have received this mail because your e-mail ID is registered with
+                          Let's Track. This is a system-generated e-mail, please don't reply to this message.</p>
+                  </footer>
+              </div>
+          </center>
+      </body>
+      </html>`,
+    };
+    sendEmail(mailOptions);
+    res
+      .status(200)
+      .json({ error: false, message: "A reset email has been sent" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: true, message: "Internal Server Error" });
+  }
+};
+
+// @route GET api/auth/reset/:token
+// @desc Reset Password - Validate password reset token and shows the password reset view
+// @access Public
+exports.reset = async (req, res) => {
+  try {
+    const user = await Users.findOne({
+      resetPasswordToken: req.params.token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+    if (!user)
+      return res.send(`<!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta http-equiv="X-UA-Compatible" content="IE=edge">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Error</title>
+      </head>
+      <body>
+          <div style="display: flex;align-items: center;justify-content: center;">
+              <div style="width: 350px;">
+                  <div style="display: flex; flex-direction: column; align-items: center;padding-top: 80px;">
+                      <div style="display: flex; justify-content: center;">
+                          <img src="https://nika.shop/wp-content/uploads/2020/01/fail-png-7.png" width="120px">
+                      </div>
+                      <h2>Something Went Wrong!</h2>
+                      <p style="color: red;">Password reset token is invalid or has expired.</p>
+                      <p>Please reset your password once more.</p>
+                  </div>
+              </div>
+          </div>
+      </body>
+      </html>`);
+    const __dirname = path.resolve();
+    res.sendFile(__dirname + "/reset.html");
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: true, message: "Internal Server Error" });
+  }
+};
+
+// @route POST api/auth/reset/:token
+// @desc Reset Password
+// @access Public
+exports.resetPassword = async (req, res) => {
+  try {
+    console.log(req.body);
+
+    const encryptedPass = cryptr.encrypt(req.body.password);
+
+    const user = await Users.findOneAndUpdate(
+      {
+        resetPasswordToken: req.params.token,
+        resetPasswordExpires: { $gt: Date.now() },
+      },
+      {
+        password: encryptedPass,
+        resetPasswordToken: null,
+        resetPasswordExpires: null,
+        status: "active",
+      }
+    );
+    if (!user)
+      return res.send(`<!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta http-equiv="X-UA-Compatible" content="IE=edge">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Error</title>
+      </head>
+      <body>
+          <div style="display: flex;align-items: center;justify-content: center;">
+              <div style="width: 350px;">
+                  <div style="display: flex; flex-direction: column; align-items: center;padding-top: 80px;">
+                      <div style="display: flex; justify-content: center;">
+                          <img src="https://nika.shop/wp-content/uploads/2020/01/fail-png-7.png" width="120px">
+                      </div>
+                      <h2>Something Went Wrong!</h2>
+                      <p style="color: red;">Password reset token is invalid or has expired.</p>
+                      <p>Please reset your password once more.</p>
+                  </div>
+              </div>
+          </div>
+      </body>
+      </html>`);
+    const mailOptions = {
+      from: `"no-reply" ${process.env.SMTP_USER_NAME}`,
+      to: user.email,
+      subject: "Your password has been changed",
+      html: `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta http-equiv="X-UA-Compatible" content="IE=edge">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Password Changed</title>
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link href='https://fonts.googleapis.com/css?family=Orbitron' rel='stylesheet' type='text/css'>
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Montserrat&family=Roboto&display=swap"
+              rel="stylesheet">
+      </head>
+      <body>
+          <center>
+              <div style="width: 350px">
+                  <header
+                      style="display: flex; flex-direction: row; align-items:center; border-bottom: solid #A5D7E8; border-width: thin;">
+                      <img src="https://play-lh.googleusercontent.com/asrfS4x89LkxFILsB4rYxFmX7n0K61MM0QEHpQ7GMlzfekHIeNLHxlP5dEbt1SstnFU=w240-h480"
+                          width="60px" height="50px" alt="GKV" />
+                      <p style="font-family: Merriweather; color: #002B5B;margin-left: 20px; font-weight: 600;">Let's Track</p>
+                  </header>
+                  <br />
+                  <div style="text-align: center;">
+                      <P style="text-align: left;">Hi ${user.firstName},</P>
+                      <p style="text-align: left;">This is a confirmation that the password for your account
+                          ${user.email} has just been changed.</p>
+                      <br />
+                  </div>
+                  <br />
+                  <footer>
+                      <p style="font-size:x-small;">You have received this mail because your e-mail ID is registered with
+                          Let's Track. This is a system-generated e-mail, please don't reply to this message.</p>
+                  </footer>
+              </div>
+          </center>
+      </body>
+      </html>`,
+    };
+    sendEmail(mailOptions);
+    res.send(`<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Success</title>
+    </head>
+    <body>
+        <div style="display: flex;align-items: center;justify-content: center;">
+            <div style="width: 350px;">
+                <div style="display: flex; flex-direction: column; align-items: center;padding-top: 80px;">
+                    <div style="display: flex; justify-content: center;">
+                        <img src="https://freepngimg.com/thumb/success/6-2-success-png-image.png" width="120px">
+                    </div>
+                    <h2>Successful!</h2>
+                    <p>Your Password has been Updated! Now, You are able to Login.</p>
                 </div>
             </div>
         </div>
