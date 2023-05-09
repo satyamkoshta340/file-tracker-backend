@@ -35,8 +35,14 @@ const userSchema = mongoose.Schema({
     unique: true,
   },
   expoPushToken: {
-    type: String
-  }
+    type: String,
+  },
+  resetPasswordToken: {
+    type: String,
+  },
+  resetPasswordExpires: {
+    type: Date,
+  },
 });
 
 const users = mongoose.model("users", userSchema);

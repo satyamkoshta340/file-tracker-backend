@@ -11,6 +11,10 @@ router.post("/google", authController.authWithGoogle);
 router.post("/googleforapp", authController.authWithGoogleForApp);
 router.get("/confirm/:token", authController.confirmAccount);
 
+router.post("/recover", authController.recover);
+router.get("/reset/:token", authController.reset);
+router.post("/reset/:token", authController.resetPassword);
+
 /*
 * routes for google login  
 
