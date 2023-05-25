@@ -315,13 +315,13 @@ exports.getSentFiles = asyncWrapper ( async (req, res, next) => {
       },
     },
     {
-      $unwind: "$user"
+      $unwind: { path: "$user", preserveNullAndEmptyArrays: true }
     },
     {
-      $unwind: "$sentTo"
+      $unwind: { path: "$sentTo", preserveNullAndEmptyArrays: true }
     },
     {
-      $unwind: {path: '$sentBy', includeArrayIndex: 'rownum'}
+      $unwind: {path: '$sentBy', preserveNullAndEmptyArrays: true}
     },
     {
       $project: {
@@ -389,16 +389,16 @@ exports.getRecievedFiles = asyncWrapper ( async (req, res, next) => {
       },
     },
     {
-      $unwind: "$user"
+      $unwind: { path: "$user", preserveNullAndEmptyArrays: true }
     },
     {
-      $unwind: "$sentTo"
+      $unwind: { path: "$sentTo", preserveNullAndEmptyArrays: true }
     },
     {
-      $unwind: "$recievedBy"
+      $unwind: { path: '$sentBy', preserveNullAndEmptyArrays: true }
     },
     {
-      $unwind: {path: '$sentBy', includeArrayIndex: 'rownum'}
+      $unwind: { path: "$recievedBy", preserveNullAndEmptyArrays: true }
     },
     {
       $project: {
