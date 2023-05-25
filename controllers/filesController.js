@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require("uuid");
 const QRCode = require("qrcode");
 const asyncWrapper = require("../utils/asyncWrapper");
 const { sendSingleNotification } = require("../utils/sendNotification");
+const { FileStatus, ResponseStatus } = require("../utils/enums");
 
 const mongoose = require("mongoose");
 
@@ -16,6 +17,7 @@ exports.createFile = asyncWrapper(async (req, res, next) => {
     fileId: uuidv4(),
     description: newFile.description,
     owner: req.user._id,
+    status: FileStatus.created
   };
   // console.log(fileBody)
   const savedFile = await Files.create(fileBody);
@@ -28,7 +30,7 @@ exports.createFile = asyncWrapper(async (req, res, next) => {
   // console.log(firstSpot);
   await FileHistory.create(firstSpot);
   res.status(200).json({
-    status: "success",
+    status: ResponseStatus.success,
     data: {
       message: "File Created successfully!",
       file: savedFile,
@@ -100,13 +102,13 @@ exports.getFileHistory = asyncWrapper(async (req, res, next) => {
 
 exports.setFileHistory = asyncWrapper(async (req, res, next) => {
   const fileId = req.params.fileId;
-  const { info, type } = req.body;
+  const { info, type, recipientId } = req.body;
   let file = null;
   try {
     file = await Files.findOne({ fileId });
   } catch (e) {
     return res.status(400).json({
-      status: "fail",
+      status: ResponseStatus.failure,
       data: {
         message: "invalid fileId, no file belong to this fileId",
       },
@@ -114,34 +116,42 @@ exports.setFileHistory = asyncWrapper(async (req, res, next) => {
   }
   if( file === null ){
     return res.status(400).json({
-      status: "fail",
+      status: ResponseStatus.failure,
       data: {
         message: "invalid fileId, no file belong to this fileId",
       },
     });
   }
-  const [lastSpot] = await FileHistory.aggregate([
-    {
-      $group: {
-        _id: file?._id,
-        recent: {
-          $max: {
-            date: "$reachedAt",
-            userId: "$userId",
-            _id: "$_id",
-          },
-        },
-      },
-    },
-  ]);
-  if (type === "recieve" && lastSpot.recent.userId.toString() === req.user._id.toString()) {
+  // const [lastSpot] = await FileHistory.aggregate([
+  //   {
+  //     $group: {
+  //       _id: file?._id,
+  //       recent: {
+  //         $max: {
+  //           date: "$reachedAt",
+  //           userId: "$userId",
+  //           _id: "$_id",
+  //         },
+  //       },
+  //     },
+  //   },
+  // ]);
+  if (type === "recieve" && file.recievedBy?.toString() === req.user._id.toString()) {
     return res.status(200).json({
-      status: "success",
+      status: ResponseStatus.success,
       data: {
         file,
         message: "you have alredy scanned the file.",
       },
     });
+  }
+  if( type === "recieve" || type === FileStatus.recieved ){
+    const now = new Date();
+    await Files.findOneAndUpdate({fileId}, {status: FileStatus.recieved, recievedBy: req.user._id, updatedAt: now, recievedAt: now});
+  }
+  else if ( type === "send" || type === FileStatus.sent ){
+    const now = new Date();
+    await Files.findOneAndUpdate({fileId}, {status: FileStatus.sent, sentBy: req.user._id, sentTo: recipientId, updatedAt: now, sentAt: now});
   }
   const spot = {
     fileId,
@@ -160,7 +170,7 @@ exports.setFileHistory = asyncWrapper(async (req, res, next) => {
     sendSingleNotification("File Spot Update", `File ${file.fileName} reached at a new spot.`, fileOwner.expoPushToken)
   }
   res.status(200).json({
-    status: "success",
+    status: ResponseStatus.success,
     data: {
       history,
       file,
@@ -275,3 +285,146 @@ exports.getAllRecentFiles = asyncWrapper(async (req, res, next) => {
   });
 });
 
+exports.getSentFiles = asyncWrapper ( async (req, res, next) => {
+  const sentFiles = await Files.aggregate([
+    { 
+      $match : { $or: [{owner: req.user._id}, {sentBy: req.user._id}], status: FileStatus.sent }
+    },
+    {
+      $lookup: {
+        from: "users",
+        foreignField: "_id",
+        localField: "owner",
+        as: "user",
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        foreignField: "_id",
+        localField: "sentTo",
+        as: "sentTo",
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        foreignField: "_id",
+        localField: "sentBy",
+        as: "sentBy",
+      },
+    },
+    {
+      $unwind: "$user"
+    },
+    {
+      $unwind: "$sentTo"
+    },
+    {
+      $unwind: {path: '$sentBy', includeArrayIndex: 'rownum'}
+    },
+    {
+      $project: {
+        fileName: "$fileName",
+        owner: "$user.email",
+        sentTo: "$sentTo.email",
+        sentBy: "$sentBy.email",
+        sentAt: "$sentAt",
+      }
+    },
+    {
+      $setWindowFields:{
+        sortBy: {sentAt: -1},
+        output: {
+          rownum: {
+             $documentNumber: {}
+          }
+       }
+      }
+    }
+  ]);
+  res.status(200).json({
+    status: ResponseStatus.success,
+    data: {
+      sentFiles,
+    },
+  });
+})
+
+exports.getRecievedFiles = asyncWrapper ( async (req, res, next) => {
+  const recievedFiles = await Files.aggregate([
+    { 
+      $match : { recievedBy: req.user._id, status: FileStatus.recieved }
+    },
+    {
+      $lookup: {
+        from: "users",
+        foreignField: "_id",
+        localField: "owner",
+        as: "user",
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        foreignField: "_id",
+        localField: "sentTo",
+        as: "sentTo",
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        foreignField: "_id",
+        localField: "sentBy",
+        as: "sentBy",
+      },
+    },
+    {
+      $lookup: {
+        from: "users",
+        foreignField: "_id",
+        localField: "recievedBy",
+        as: "recievedBy",
+      },
+    },
+    {
+      $unwind: "$user"
+    },
+    {
+      $unwind: "$sentTo"
+    },
+    {
+      $unwind: "$recievedBy"
+    },
+    {
+      $unwind: {path: '$sentBy', includeArrayIndex: 'rownum'}
+    },
+    {
+      $project: {
+        fileName: "$fileName",
+        owner: "$user.email",
+        recievedBy: "$recievedBy.email",
+        sentTo: "$sentTo.email",
+        sentBy: "$sentBy.email",
+        sentAt: "$sentAt",
+      }
+    },
+    {
+      $setWindowFields:{
+        sortBy: {sentAt: -1},
+        output: {
+          rownum: {
+             $documentNumber: {}
+          }
+       }
+      }
+    }
+  ]);
+  res.status(200).json({
+    status: ResponseStatus.success,
+    data: {
+      recievedFiles,
+    },
+  });
+})

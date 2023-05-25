@@ -12,5 +12,7 @@ router.route("/")
 router.get("/getAllUsers", userController.getAllUsers);
 router.get("/recent-files", fileController.getTopFiveRecentFiles);
 router.get("/getAllRecentFiles", fileController.getAllRecentFiles);
+router.get("/sentFiles",  fileController.getSentFiles);
+router.get("/recievedFiles", fileController.getRecievedFiles);
 
 module.exports = router;

@@ -14,6 +14,33 @@ const fileSchema = new mongoose.Schema({
     },
     description:{
         type: String
+    },
+    status:{
+        type: String
+    },
+    recievedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "users"
+    },
+    sentBy:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "users"
+    },
+    sentTo:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "users"
+    },
+    sentAt:{
+        type: Date
+    },
+    recievedAt:{
+        type: Date
+    },
+    createdAt:{
+        type: Date
+    },
+    updatedAt:{
+        type: Date
     }
 })
 
